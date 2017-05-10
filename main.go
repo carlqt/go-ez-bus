@@ -1,7 +1,10 @@
 package main
 
-import "fmt"
+import "github.com/carlqt/ez-bus/geocode"
+
+type GeoRevResponse struct {
+}
 
 func main() {
-	fmt.Println("Clear")
+	geocode.Reverse(1.123, 1.32421)
 }
