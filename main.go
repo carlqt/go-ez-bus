@@ -29,9 +29,10 @@ func main() {
 	r := chi.NewRouter()
 
 	r.Use(middleware.Logger)
+	r.Use(ApplicationHandler)
 	r.Get("/", Index)
 	r.Get("/nearby", NearbyStations)
-	r.Get("/routes", BusRoute)
+	r.Get("/station/:busStopCode", BusStopAuth(Station))
 	log.Println("listening to port 8000")
 	log.Fatal(http.ListenAndServe(":8000", r))
 }
