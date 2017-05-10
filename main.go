@@ -29,11 +29,8 @@ func main() {
 	r := chi.NewRouter()
 
 	r.Use(middleware.Logger)
-	r.Get("/", IndexHandler)
+	r.Get("/", Index)
+	r.Get("/nearby", NearbyStations)
 	log.Println("listening to port 8000")
 	log.Fatal(http.ListenAndServe(":8000", r))
-}
-
-func IndexHandler(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Hello, World"))
 }
