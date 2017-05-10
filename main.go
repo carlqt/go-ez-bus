@@ -2,12 +2,14 @@ package main
 
 import (
 	"database/sql"
-	"fmt"
+	"log"
+	"net/http"
 
 	"github.com/Masterminds/squirrel"
 	"github.com/carlqt/ez-bus/dbcon"
-	"github.com/carlqt/ez-bus/models"
 	_ "github.com/lib/pq"
+	"github.com/pressly/chi"
+	"github.com/pressly/chi/middleware"
 )
 
 func init() {
@@ -16,19 +18,22 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
+
 	builder := squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar).RunWith(dbcon.DBcon)
 	dbcon.SDBcon = &builder
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
+
 }
 
 func main() {
-	var stations models.Stations
-	coords := make(map[string]float64)
-	coords["lat"] = 1.293
-	coords["lng"] = 103.8897
+	r := chi.NewRouter()
 
-	stations, err := stations.Nearby(1000, coords)
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println(stations)
+	r.Use(middleware.Logger)
+	r.Get("/", IndexHandler)
+	log.Println("listening to port 8000")
+	log.Fatal(http.ListenAndServe(":8000", r))
+}
+
+func IndexHandler(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte("Hello, World"))
 }
