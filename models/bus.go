@@ -4,6 +4,7 @@ import (
 	"database/sql"
 
 	sq "github.com/Masterminds/squirrel"
+	"github.com/carlqt/ez-bus/dbcon"
 )
 
 type BusResponse struct {
@@ -15,9 +16,8 @@ type Bus struct {
 	BusOperator string `json:"Operator"`
 }
 
-func (b *Bus) Create(db *sql.DB) {
-	sgBusDB := sq.StatementBuilder.PlaceholderFormat(sq.Dollar).RunWith(db)
-	bus := sgBusDB.Insert("buses").Columns("bus_id_code", "bus_operator").Values(b.BusIDCode, b.BusOperator)
+func (b *Bus) Create() {
+	bus := dbcon.SDBcon.Insert("buses").Columns("bus_id_code", "bus_operator").Values(b.BusIDCode, b.BusOperator)
 	_, err := bus.Exec()
 
 	if err != nil {
@@ -25,18 +25,17 @@ func (b *Bus) Create(db *sql.DB) {
 	}
 }
 
-func (b *BusResponse) CreateAll(db *sql.DB) {
+func (b *BusResponse) CreateAll() {
 	for _, bus := range b.Values {
-		if !Exists(db, bus.BusIDCode) {
-			bus.Create(db)
+		if !Exists(bus.BusIDCode) {
+			bus.Create()
 		}
 	}
 }
 
-func Exists(db *sql.DB, busIDCode string) bool {
+func Exists(busIDCode string) bool {
 	var busID string
-	sgBusDB := sq.StatementBuilder.PlaceholderFormat(sq.Dollar).RunWith(db)
-	err := sgBusDB.Select("bus_id_code").From("buses").Where(sq.Eq{"bus_id_code": busIDCode}).QueryRow().Scan(&busID)
+	err := dbcon.SDBcon.Select("bus_id_code").From("buses").Where(sq.Eq{"bus_id_code": busIDCode}).QueryRow().Scan(&busID)
 
 	switch {
 	case err == sql.ErrNoRows:

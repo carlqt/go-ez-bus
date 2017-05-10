@@ -10,9 +10,11 @@ import (
 	"os"
 	"strconv"
 
+	"github.com/Masterminds/squirrel"
 	_ "github.com/lib/pq"
 
 	"github.com/carlqt/ez-bus/config"
+	"github.com/carlqt/ez-bus/dbcon"
 	"github.com/carlqt/ez-bus/models"
 )
 
@@ -21,17 +23,18 @@ var dbInfo string
 
 func init() {
 	var err error
-
-	dbInfo = "dbname=sg_buses sslmode=disable"
-	db, err = sql.Open("postgres", dbInfo)
+	dbcon.DBcon, err = sql.Open("postgres", "dbname=sg_buses sslmode=disable")
 	if err != nil {
 		panic(err)
 	}
+
+	builder := squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar).RunWith(dbcon.DBcon)
+	dbcon.SDBcon = &builder
+
 }
 
 func main() {
 	busRouteRequest()
-	//fmt.Println(q.ToSql())
 }
 
 func busRouteRequest() {
@@ -45,7 +48,6 @@ func busRouteRequest() {
 	for values := 50; values >= 50; {
 		strCtr := strconv.Itoa(skipCtr)
 		req, _ := http.NewRequest("GET", url+"?$skip="+strCtr, nil)
-		//req.Header.Set("UniqueUserID", ltaUserKey)
 		req.Header.Set("AccountKey", conf.BusKey)
 		req.Header.Set("Accept", "application/json")
 
@@ -58,7 +60,7 @@ func busRouteRequest() {
 		routeResp := models.RouteResponse{}
 		json.NewDecoder(resp.Body).Decode(&routeResp)
 
-		routeResp.CreateAll(db)
+		routeResp.CreateAll()
 		values = len(routeResp.Values)
 
 		skipCtr += 50

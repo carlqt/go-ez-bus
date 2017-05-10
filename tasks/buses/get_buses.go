@@ -10,9 +10,11 @@ import (
 	"os"
 	"strconv"
 
+	"github.com/Masterminds/squirrel"
 	_ "github.com/lib/pq"
 
 	"github.com/carlqt/ez-bus/config"
+	"github.com/carlqt/ez-bus/dbcon"
 	"github.com/carlqt/ez-bus/models"
 )
 
@@ -21,12 +23,13 @@ var dbInfo string
 
 func init() {
 	var err error
-
-	dbInfo = "dbname=sg_buses sslmode=disable"
-	db, err = sql.Open("postgres", dbInfo)
+	dbcon.DBcon, err = sql.Open("postgres", "dbname=sg_buses sslmode=disable")
 	if err != nil {
 		panic(err)
 	}
+
+	builder := squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar).RunWith(dbcon.DBcon)
+	dbcon.SDBcon = &builder
 }
 
 func main() {
@@ -58,7 +61,7 @@ func busRouteRequest() {
 		busResp := models.BusResponse{}
 		json.NewDecoder(resp.Body).Decode(&busResp)
 
-		busResp.CreateAll(db)
+		busResp.CreateAll()
 		values = len(busResp.Values)
 
 		skipCtr += 50

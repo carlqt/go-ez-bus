@@ -1,10 +1,6 @@
 package models
 
-import (
-	"database/sql"
-
-	sq "github.com/Masterminds/squirrel"
-)
+import "github.com/carlqt/ez-bus/dbcon"
 
 type RouteResponse struct {
 	Values []Route `json:"Value"`
@@ -16,9 +12,8 @@ type Route struct {
 	StopSequence int
 }
 
-func (r *Route) Create(db *sql.DB) {
-	sgBusDB := sq.StatementBuilder.PlaceholderFormat(sq.Dollar).RunWith(db)
-	route := sgBusDB.Insert("routes").Columns("bus_stop_code", "bus_id_code", "stop_sequence").Values(r.BusStopCode, r.ServiceNo, r.StopSequence)
+func (r *Route) Create() {
+	route := dbcon.SDBcon.Insert("routes").Columns("bus_stop_code", "bus_id_code", "stop_sequence").Values(r.BusStopCode, r.ServiceNo, r.StopSequence)
 	_, err := route.Exec()
 
 	if err != nil {
@@ -26,9 +21,9 @@ func (r *Route) Create(db *sql.DB) {
 	}
 }
 
-func (r *RouteResponse) CreateAll(db *sql.DB) {
+func (r *RouteResponse) CreateAll() {
 	for _, route := range r.Values {
-		route.Create(db)
+		route.Create()
 		//fmt.Println(route)
 	}
 }
