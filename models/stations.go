@@ -2,6 +2,7 @@ package models
 
 import (
 	"database/sql"
+	"log"
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/carlqt/ez-bus/dbcon"
@@ -59,6 +60,36 @@ func (s *Stations) Nearby(radius int, c Location) (Stations, error) {
 
 	if err = rows.Err(); err != nil {
 		return nil, err
+	}
+
+	return stations, nil
+}
+
+func (s *Stations) RemainingRoute(busCode string, stationCode string) (Stations, error) {
+	var stopCount int
+	var stations []Station
+
+	err := dbcon.DBcon.QueryRow(`SELECT stop_sequence FROM routes
+	WHERE bus_id_code = $1 AND bus_stop_code = $2`, busCode, stationCode).Scan(&stopCount)
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+
+	rows, err := dbcon.DBcon.Query(`SELECT stations.description, stations.bus_stop_code FROM stations
+	JOIN routes ON stations.bus_stop_code = routes.bus_stop_code
+	WHERE routes.bus_id_code = $1 AND routes.stop_sequence > $2
+	ORDER BY routes.stop_sequence`, busCode, stopCount)
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		station := Station{}
+		rows.Scan(&station.Description, &station.BusStopCode)
+		stations = append(stations, station)
 	}
 
 	return stations, nil

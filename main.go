@@ -31,6 +31,7 @@ func main() {
 	r.Use(middleware.Logger)
 	r.Get("/", Index)
 	r.Get("/nearby", NearbyStations)
+	r.Get("/routes", BusRoute)
 	log.Println("listening to port 8000")
 	log.Fatal(http.ListenAndServe(":8000", r))
 }
