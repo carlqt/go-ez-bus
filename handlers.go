@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -44,6 +45,7 @@ func NearbyStations(w http.ResponseWriter, r *http.Request) {
 		w.Write(resp)
 	} else {
 		resp, _ := json.Marshal(stations)
+		fmt.Println(stations)
 		w.Write(resp)
 	}
 }

@@ -18,9 +18,10 @@ type Station struct {
 	Description string
 	Latitude    float32
 	Longitude   float32
+	Buses       []string
 }
 
-type Stations []Station
+type Stations []*Station
 
 type Location map[string]float64
 
@@ -41,34 +42,49 @@ func (b *StationResponse) CreateAll() {
 	}
 }
 
-// Nearby search the database for nearby stations within a given radius
+// Nearby search the database for nearby stations within a given radius. The unit of radius is meters
 func (s *Stations) Nearby(radius int, c Location) (Stations, error) {
-	var stations []Station
+	var stations []*Station
 
-	qBuilder := dbcon.SDBcon.Select("description, bus_stop_code").From("stations").Where("earth_box(ll_to_earth($1, $2), $3) @> ll_to_earth(latitude, longitude)", c["lat"], c["lng"], radius)
-
-	rows, err := qBuilder.Query()
+	rows, err := dbcon.SDBcon.Select("description, bus_stop_code").From("stations").Where("earth_box(ll_to_earth($1, $2), $3) @> ll_to_earth(latitude, longitude)", c["lat"], c["lng"], radius).Query()
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
 	for rows.Next() {
-		station := Station{}
+		station := new(Station)
 		rows.Scan(&station.Description, &station.BusStopCode)
 		stations = append(stations, station)
 	}
-
 	if err = rows.Err(); err != nil {
 		return nil, err
+	}
+
+	stmnt, err := dbcon.DBcon.Prepare("SELECT buses.bus_id_code FROM buses JOIN routes ON buses.bus_id_code = routes.bus_id_code WHERE routes.bus_stop_code = $1")
+	if err != nil {
+		panic(err)
+	}
+
+	for _, station := range stations {
+		var buses []string
+		r, _ := stmnt.Query(station.BusStopCode)
+		for r.Next() {
+			var busCode string
+			r.Scan(&busCode)
+			buses = append(buses, busCode)
+		}
+		r.Close()
+		station.Buses = buses
 	}
 
 	return stations, nil
 }
 
+// RemainingRoute returns a list of stations. If bus is given, it will return the list of incoming stations along the route of the bus
 func (s *Stations) RemainingRoute(busCode string, stationCode string) (Stations, error) {
 	var stopCount int
-	var stations []Station
+	var stations []*Station
 
 	// Get the stopcount of stations of the bus
 	err := dbcon.DBcon.QueryRow(`SELECT stop_sequence FROM routes
@@ -89,7 +105,7 @@ func (s *Stations) RemainingRoute(busCode string, stationCode string) (Stations,
 	defer rows.Close()
 
 	for rows.Next() {
-		station := Station{}
+		station := new(Station)
 		rows.Scan(&station.Description, &station.BusStopCode)
 		stations = append(stations, station)
 	}
