@@ -14,6 +14,7 @@ import (
 
 func init() {
 	var err error
+
 	dbcon.DBcon, err = sql.Open("postgres", "dbname=sg_buses sslmode=disable")
 	if err != nil {
 		panic(err)
@@ -22,7 +23,6 @@ func init() {
 	builder := squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar).RunWith(dbcon.DBcon)
 	dbcon.SDBcon = &builder
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
-
 }
 
 func main() {

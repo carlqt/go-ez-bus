@@ -45,16 +45,17 @@ func (b *StationResponse) CreateAll() {
 func (s *Stations) Nearby(radius int, c Location) (Stations, error) {
 	var stations []Station
 
-	qBuilder := dbcon.SDBcon.Select("description").From("stations").Where("earth_box(ll_to_earth($1, $2), $3) @> ll_to_earth(latitude, longitude)", c["lat"], c["lng"], radius)
+	qBuilder := dbcon.SDBcon.Select("description, bus_stop_code").From("stations").Where("earth_box(ll_to_earth($1, $2), $3) @> ll_to_earth(latitude, longitude)", c["lat"], c["lng"], radius)
 
 	rows, err := qBuilder.Query()
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
+
 	for rows.Next() {
 		station := Station{}
-		rows.Scan(&station.Description)
+		rows.Scan(&station.Description, &station.BusStopCode)
 		stations = append(stations, station)
 	}
 
@@ -69,6 +70,7 @@ func (s *Stations) RemainingRoute(busCode string, stationCode string) (Stations,
 	var stopCount int
 	var stations []Station
 
+	// Get the stopcount of stations of the bus
 	err := dbcon.DBcon.QueryRow(`SELECT stop_sequence FROM routes
 	WHERE bus_id_code = $1 AND bus_stop_code = $2`, busCode, stationCode).Scan(&stopCount)
 	if err != nil {
