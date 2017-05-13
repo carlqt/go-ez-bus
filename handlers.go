@@ -1,11 +1,10 @@
 package main
 
 import (
-	"encoding/json"
-	"fmt"
 	"net/http"
 	"strconv"
 
+	"github.com/carlqt/ez-bus/helpers/render"
 	"github.com/carlqt/ez-bus/models"
 	"github.com/pressly/chi"
 )
@@ -30,7 +29,7 @@ func Index(w http.ResponseWriter, r *http.Request) {
 
 func NearbyStations(w http.ResponseWriter, r *http.Request) {
 	var stationsStruct models.Stations
-	var resp []byte
+	h := make(map[string]interface{})
 	coors := make(map[string]float64)
 
 	q := r.URL.Query()
@@ -38,34 +37,21 @@ func NearbyStations(w http.ResponseWriter, r *http.Request) {
 	coors["lng"], _ = strconv.ParseFloat(q.Get("lng"), 64)
 
 	stations, err := stationsStruct.Nearby(1000, coors)
-	if err != nil {
-		errMap := make(map[string]string)
-		errMap["errors"] = err.Error()
-		resp, _ = json.Marshal(errMap)
-		w.Write(resp)
-	} else {
-		resp, _ := json.Marshal(stations)
-		fmt.Println(stations)
-		w.Write(resp)
-	}
+	h["stations"] = stations
+	h["errors"] = err
+	render.JSON(w, h)
 }
 
 func Station(w http.ResponseWriter, r *http.Request) {
 	var stationList models.Stations
-	var resp []byte
+	h := make(map[string]interface{})
 
 	q := r.URL.Query()
 	busCode := chi.URLParam(r, "busStopCode")
 	station := q.Get("stationCode")
 
 	stations, err := stationList.RemainingRoute(busCode, station)
-	if err != nil {
-		errMap := make(map[string]string)
-		errMap["errors"] = err.Error()
-		resp, _ = json.Marshal(errMap)
-		w.Write(resp)
-	} else {
-		resp, _ = json.Marshal(stations)
-		w.Write(resp)
-	}
+	h["stations"] = stations
+	h["errors"] = err
+	render.JSON(w, h)
 }
