@@ -10,7 +10,7 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/Masterminds/squirrel"
+	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 
 	"github.com/carlqt/ez-bus/config"
@@ -21,15 +21,21 @@ import (
 var db *sql.DB
 var dbInfo string
 
+type RouteResponse struct {
+	Values []models.Route `json:"Value"`
+}
+
+func (r *RouteResponse) CreateAll() {
+	for _, route := range r.Values {
+		route.Create()
+	}
+}
 func init() {
 	var err error
-	dbcon.DBcon, err = sql.Open("postgres", "dbname=sg_buses sslmode=disable")
+	dbcon.DBX, err = sqlx.Connect("postgres", "dbname=sg_buses sslmode=disable")
 	if err != nil {
 		panic(err)
 	}
-
-	builder := squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar).RunWith(dbcon.DBcon)
-	dbcon.SDBcon = &builder
 
 }
 
@@ -57,7 +63,7 @@ func busRouteRequest() {
 		}
 
 		defer resp.Body.Close()
-		routeResp := models.RouteResponse{}
+		routeResp := RouteResponse{}
 		json.NewDecoder(resp.Body).Decode(&routeResp)
 
 		routeResp.CreateAll()
