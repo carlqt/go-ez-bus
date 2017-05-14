@@ -1,13 +1,12 @@
 package dbcon
 
 import (
-	"database/sql"
-
 	"github.com/Masterminds/squirrel"
+	"github.com/jmoiron/sqlx"
 )
 
 var (
 	//DBcon is the connection handler
-	DBcon  *sql.DB
+	DBcon  *sqlx.DB
 	SDBcon *squirrel.StatementBuilderType
 )

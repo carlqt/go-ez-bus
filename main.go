@@ -1,12 +1,11 @@
 package main
 
 import (
-	"database/sql"
 	"log"
 	"net/http"
 
-	"github.com/Masterminds/squirrel"
 	"github.com/carlqt/ez-bus/dbcon"
+	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 	"github.com/pressly/chi"
 	"github.com/pressly/chi/middleware"
@@ -15,14 +14,10 @@ import (
 func init() {
 	var err error
 
-	dbcon.DBcon, err = sql.Open("postgres", "dbname=sg_buses sslmode=disable")
+	dbcon.DBcon, err = sqlx.Connect("postgres", "dbname=sg_buses sslmode=disable")
 	if err != nil {
 		panic(err)
 	}
-
-	builder := squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar).RunWith(dbcon.DBcon)
-	dbcon.SDBcon = &builder
-	log.SetFlags(log.LstdFlags | log.Lshortfile)
 }
 
 func main() {

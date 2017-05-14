@@ -12,8 +12,8 @@ type BusResponse struct {
 }
 
 type Bus struct {
-	BusIDCode   string `json:"ServiceNo"`
-	BusOperator string `json:"Operator"`
+	BusIDCode   string `json:"ServiceNo" db:"bus_id_code"`
+	BusOperator string `json:"Operator" db:"bus_operator"`
 }
 
 func (b *Bus) Create() {
