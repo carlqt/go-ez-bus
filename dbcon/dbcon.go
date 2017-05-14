@@ -6,7 +6,7 @@ import (
 )
 
 var (
-	//DBcon is the connection handler
-	DBcon  *sqlx.DB
+	//DBX is the connection handler for sqlx
+	DBX    *sqlx.DB
 	SDBcon *squirrel.StatementBuilderType
 )

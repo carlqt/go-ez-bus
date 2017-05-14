@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/Masterminds/squirrel"
+	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 
 	"github.com/carlqt/ez-bus/config"
@@ -15,16 +15,39 @@ import (
 	"github.com/carlqt/ez-bus/models"
 )
 
+type StationResponse struct {
+	Values []models.Station `json:"Value"`
+}
+
+func (b *StationResponse) CreateAll() {
+	for _, station := range b.Values {
+		if !StationExists(station.BusStopCode) {
+			station.Create()
+		}
+	}
+}
+
+func StationExists(code string) bool {
+	var exists bool
+	// err := dbcon.SDBcon.Select("bus_stop_code").From("stations").Where(sq.Eq{"bus_stop_code": code}).QueryRow().Scan(&stnCode
+	err := dbcon.DBX.QueryRowx("SELECT exists (SELECT id FROM stations WHERE bus_stop_code = $1)", code).Scan(&exists)
+
+	switch {
+	case err == sql.ErrNoRows:
+		return false
+	case err != nil:
+		panic(err)
+	default:
+		return true
+	}
+}
+
 func init() {
 	var err error
-	dbcon.DBcon, err = sql.Open("postgres", "dbname=sg_buses sslmode=disable")
+	dbcon.DBX, err = sqlx.Connect("postgres", "dbname=sg_buses sslmode=disable")
 	if err != nil {
 		panic(err)
 	}
-
-	builder := squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar).RunWith(dbcon.DBcon)
-	dbcon.SDBcon = &builder
-
 }
 
 func main() {
@@ -51,7 +74,7 @@ func busRouteRequest() {
 		}
 
 		defer resp.Body.Close()
-		stationResp := models.StationResponse{}
+		stationResp := StationResponse{}
 		json.NewDecoder(resp.Body).Decode(&stationResp)
 
 		stationResp.CreateAll()

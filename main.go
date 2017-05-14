@@ -14,7 +14,7 @@ import (
 func init() {
 	var err error
 
-	dbcon.DBcon, err = sqlx.Connect("postgres", "dbname=sg_buses sslmode=disable")
+	dbcon.DBX, err = sqlx.Connect("postgres", "dbname=sg_buses sslmode=disable")
 	if err != nil {
 		panic(err)
 	}

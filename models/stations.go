@@ -4,10 +4,6 @@ import (
 	"github.com/carlqt/ez-bus/dbcon"
 )
 
-type StationResponse struct {
-	Values Stations `json:"Value"`
-}
-
 type Station struct {
 	BusStopCode string  `db:"bus_stop_code"`
 	RoadName    string  `db:"road_name"`
@@ -29,14 +25,6 @@ func (s *Station) Create() {
 	// }
 }
 
-func (b *StationResponse) CreateAll() {
-	// for _, station := range b.Values {
-	// 	if !StationExists(station.BusStopCode) {
-	// 		station.Create()
-	// 	}
-	// }
-}
-
 // func (s *Stations) pluck(column string) []interface{} {
 
 // }
@@ -45,7 +33,7 @@ func (b *StationResponse) CreateAll() {
 func Nearby(radius int, c Location) (Stations, error) {
 	var stations Stations
 
-	err := dbcon.DBcon.Select(&stations, "SELECT description, bus_stop_code from stations WHERE earth_box(ll_to_earth($1, $2), $3) @> ll_to_earth(latitude, longitude)", c["lat"], c["lng"], radius)
+	err := dbcon.DBX.Select(&stations, "SELECT description, bus_stop_code from stations WHERE earth_box(ll_to_earth($1, $2), $3) @> ll_to_earth(latitude, longitude)", c["lat"], c["lng"], radius)
 	if err != nil {
 		return nil, err
 	}
@@ -86,22 +74,8 @@ func Nearby(radius int, c Location) (Stations, error) {
 // 	return stations, nil
 // }
 
-// func StationExists(code string) bool {
-// 	var stnCode string
-// 	err := dbcon.SDBcon.Select("bus_stop_code").From("stations").Where(sq.Eq{"bus_stop_code": code}).QueryRow().Scan(&stnCode)
-
-// 	switch {
-// 	case err == sql.ErrNoRows:
-// 		return false
-// 	case err != nil:
-// 		panic(err)
-// 	default:
-// 		return true
-// 	}
-// }
-
 func (s *Stations) initBuses() error {
-	stmnt, err := dbcon.DBcon.Preparex(`SELECT buses.bus_id_code
+	stmnt, err := dbcon.DBX.Preparex(`SELECT buses.bus_id_code
 	FROM buses JOIN routes ON buses.bus_id_code = routes.bus_id_code
 	WHERE routes.bus_stop_code = $1`)
 
@@ -117,7 +91,7 @@ func (s *Stations) initBuses() error {
 }
 
 func (s *Station) initBuses() error {
-	err := dbcon.DBcon.Select(&s.Buses, `SELECT buses.bus_id_code FROM buses
+	err := dbcon.DBX.Select(&s.Buses, `SELECT buses.bus_id_code FROM buses
 	JOIN routes ON buses.bus_id_code = routes.bus_id_code
 	WHERE routes.bus_stop_code = $1`, s.BusStopCode)
 
