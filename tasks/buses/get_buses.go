@@ -1,16 +1,12 @@
 package main
 
 import (
-	"bytes"
-	"database/sql"
 	"encoding/json"
-	"io/ioutil"
 	"log"
 	"net/http"
-	"os"
 	"strconv"
 
-	"github.com/Masterminds/squirrel"
+	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 
 	"github.com/carlqt/ez-bus/config"
@@ -18,23 +14,40 @@ import (
 	"github.com/carlqt/ez-bus/models"
 )
 
-var db *sql.DB
-var dbInfo string
+type BusResponse struct {
+	Values []models.Bus `json:"Value"`
+}
+
+func (b *BusResponse) CreateAll() {
+	for _, bus := range b.Values {
+		if !BusExists(bus.BusIDCode) {
+			bus.Create()
+		}
+	}
+}
+
+func BusExists(busIDCode string) bool {
+	var exists bool
+	dbcon.DBX.QueryRowx("SELECT exists (SELECT 1 FROM buses WHERE bus_id_code = $1)", busIDCode).Scan(&exists)
+
+	switch {
+	case exists:
+		return true
+	default:
+		return false
+	}
+}
 
 func init() {
 	var err error
-	dbcon.DBcon, err = sql.Open("postgres", "dbname=sg_buses sslmode=disable")
+	dbcon.DBX, err = sqlx.Connect("postgres", "dbname=sg_buses sslmode=disable")
 	if err != nil {
 		panic(err)
 	}
-
-	builder := squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar).RunWith(dbcon.DBcon)
-	dbcon.SDBcon = &builder
 }
 
 func main() {
 	busRouteRequest()
-	//fmt.Println(q.ToSql())
 }
 
 func busRouteRequest() {
@@ -58,7 +71,7 @@ func busRouteRequest() {
 		}
 
 		defer resp.Body.Close()
-		busResp := models.BusResponse{}
+		busResp := BusResponse{}
 		json.NewDecoder(resp.Body).Decode(&busResp)
 
 		busResp.CreateAll()
@@ -67,12 +80,4 @@ func busRouteRequest() {
 		skipCtr += 50
 		log.Println(url + "?$skip=" + strCtr)
 	}
-}
-
-func debugResponse(r *http.Response) {
-	var out bytes.Buffer
-	body, _ := ioutil.ReadAll(r.Body)
-
-	json.Indent(&out, body, "", "  ")
-	out.WriteTo(os.Stdout)
 }

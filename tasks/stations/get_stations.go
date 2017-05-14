@@ -1,7 +1,6 @@
 package main
 
 import (
-	"database/sql"
 	"encoding/json"
 	"log"
 	"net/http"
@@ -29,16 +28,13 @@ func (b *StationResponse) CreateAll() {
 
 func StationExists(code string) bool {
 	var exists bool
-	// err := dbcon.SDBcon.Select("bus_stop_code").From("stations").Where(sq.Eq{"bus_stop_code": code}).QueryRow().Scan(&stnCode
-	err := dbcon.DBX.QueryRowx("SELECT exists (SELECT id FROM stations WHERE bus_stop_code = $1)", code).Scan(&exists)
+	dbcon.DBX.QueryRowx("SELECT exists (SELECT 1 FROM stations WHERE bus_stop_code = $1)", code).Scan(&exists)
 
 	switch {
-	case err == sql.ErrNoRows:
-		return false
-	case err != nil:
-		panic(err)
-	default:
+	case exists:
 		return true
+	default:
+		return false
 	}
 }
 

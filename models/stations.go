@@ -17,17 +17,10 @@ type Location map[string]float64
 type Stations []*Station
 
 func (s *Station) Create() {
-	// station := dbcon.SDBcon.Insert("stations").Columns("bus_stop_code", "road_name", "description", "latitude", "longitude").Values(s.BusStopCode, s.RoadName, s.Description, s.Latitude, s.Longitude)
-	// _, err := station.Exec()
-
-	// if err != nil {
-	// 	panic(err)
-	// }
+	q := `INSERT INTO stations (bus_stop_code, road_name, description, latitude, longitude)
+	VALUES ($1, $2, $3, $4, $5)`
+	dbcon.DBX.MustExec(q, s.BusStopCode, s.RoadName, s.Description, s.Latitude, s.Longitude)
 }
-
-// func (s *Stations) pluck(column string) []interface{} {
-
-// }
 
 // Nearby search the database for nearby stations within a given radius. The unit of radius is meters
 func Nearby(radius int, c Location) (Stations, error) {

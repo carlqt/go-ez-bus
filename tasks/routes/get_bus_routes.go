@@ -30,6 +30,7 @@ func (r *RouteResponse) CreateAll() {
 		route.Create()
 	}
 }
+
 func init() {
 	var err error
 	dbcon.DBX, err = sqlx.Connect("postgres", "dbname=sg_buses sslmode=disable")
