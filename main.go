@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/carlqt/ez-bus/config"
 	"github.com/carlqt/ez-bus/dbcon"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
@@ -18,6 +19,8 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
+
+	dbcon.Conf = config.NewConfig()
 }
 
 func main() {

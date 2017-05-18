@@ -34,7 +34,7 @@ func NearbyStations(w http.ResponseWriter, r *http.Request) {
 	coors["lat"], _ = strconv.ParseFloat(q.Get("lat"), 64)
 	coors["lng"], _ = strconv.ParseFloat(q.Get("lng"), 64)
 
-	stations, err := models.Nearby(1000, coors)
+	stations, err := models.Nearby(500, coors)
 	h["stations"] = stations
 	h["errors"] = err
 	render.JSON(w, h)
