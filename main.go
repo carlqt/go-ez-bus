@@ -31,7 +31,8 @@ func main() {
 	r.Use(ApplicationHandler)
 	r.Get("/", Index)
 	r.Get("/nearby", NearbyStations)
-	r.Get("/station/:busStopCode", BusStopAuth(Station))
+	// r.Get("/station/:busStopCode", BusStopAuth(Station))
+	r.Get("/station", Station)
 	log.Println("listening to port 8000")
 	log.Fatal(http.ListenAndServe(":8000", r))
 }

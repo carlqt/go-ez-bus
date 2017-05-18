@@ -41,15 +41,10 @@ func NearbyStations(w http.ResponseWriter, r *http.Request) {
 }
 
 func Station(w http.ResponseWriter, r *http.Request) {
-	// var stationList models.Stations
-	// h := make(map[string]interface{})
+	m := make(map[string]interface{})
+	q := r.URL.Query().Get("busStopCode")
+	m["BusStopCode"] = q
+	station := models.NewStation(m)
 
-	// q := r.URL.Query()
-	// busCode := chi.URLParam(r, "busStopCode")
-	// station := q.Get("stationCode")
-
-	// stations, err := stationList.RemainingRoute(busCode, station)
-	// h["stations"] = stations
-	// h["errors"] = err
-	// render.JSON(w, h)
+	render.JSON(w, station)
 }

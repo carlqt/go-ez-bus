@@ -2,6 +2,7 @@ package models
 
 import (
 	"github.com/carlqt/ez-bus/dbcon"
+	"github.com/carlqt/ez-bus/helpers"
 )
 
 type Station struct {
@@ -15,6 +16,14 @@ type Station struct {
 
 type Location map[string]float64
 type Stations []*Station
+
+func NewStation(s map[string]interface{}) *Station {
+	station := new(Station)
+	helpers.MapToStruct(s, station)
+
+	station.InitBuses()
+	return station
+}
 
 func (s *Station) Create() {
 	q := `INSERT INTO stations (bus_stop_code, road_name, description, latitude, longitude)
@@ -83,7 +92,7 @@ func (s *Stations) initBuses() error {
 	return nil
 }
 
-func (s *Station) initBuses() error {
+func (s *Station) InitBuses() error {
 	err := dbcon.DBX.Select(&s.Buses, `SELECT buses.bus_id_code FROM buses
 	JOIN routes ON buses.bus_id_code = routes.bus_id_code
 	WHERE routes.bus_stop_code = $1`, s.BusStopCode)
