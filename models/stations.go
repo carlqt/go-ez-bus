@@ -75,7 +75,7 @@ func Nearby(radius int, c Location) (Stations, error) {
 // }
 
 func (s *Stations) initBuses() error {
-	stmnt, err := dbcon.DBX.Preparex(`SELECT buses.bus_id_code
+	stmnt, err := dbcon.DBX.Preparex(`SELECT DISTINCT buses.bus_id_code
 	FROM buses JOIN routes ON buses.bus_id_code = routes.bus_id_code
 	WHERE routes.bus_stop_code = $1`)
 
@@ -91,7 +91,7 @@ func (s *Stations) initBuses() error {
 }
 
 func (s *Station) InitBuses() error {
-	err := dbcon.DBX.Select(&s.Buses, `SELECT buses.bus_id_code FROM buses
+	err := dbcon.DBX.Select(&s.Buses, `SELECT DISTINCT buses.bus_id_code FROM buses
 	JOIN routes ON buses.bus_id_code = routes.bus_id_code
 	WHERE routes.bus_stop_code = $1`, s.BusStopCode)
 
