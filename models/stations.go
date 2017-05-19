@@ -2,7 +2,6 @@ package models
 
 import (
 	"github.com/carlqt/ez-bus/dbcon"
-	"github.com/carlqt/ez-bus/helpers"
 )
 
 type Station struct {
@@ -17,9 +16,8 @@ type Station struct {
 type Location map[string]float64
 type Stations []*Station
 
-func NewStation(s map[string]interface{}) *Station {
-	station := new(Station)
-	helpers.MapToStruct(s, station)
+func NewStation(code string) *Station {
+	station := &Station{BusStopCode: code}
 
 	station.InitBuses()
 	return station

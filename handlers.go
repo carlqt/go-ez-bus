@@ -6,6 +6,7 @@ import (
 
 	"github.com/carlqt/ez-bus/helpers/render"
 	"github.com/carlqt/ez-bus/models"
+	"github.com/pressly/chi"
 )
 
 func ApplicationHandler(next http.Handler) http.Handler {
@@ -41,10 +42,8 @@ func NearbyStations(w http.ResponseWriter, r *http.Request) {
 }
 
 func Station(w http.ResponseWriter, r *http.Request) {
-	m := make(map[string]interface{})
-	q := r.URL.Query().Get("busStopCode")
-	m["BusStopCode"] = q
-	station := models.NewStation(m)
+	q := chi.URLParam(r, "busStopCode")
+	station := models.NewStation(q)
 
 	render.JSON(w, station)
 }
