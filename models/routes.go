@@ -1,8 +1,6 @@
 package models
 
-import (
-	"github.com/carlqt/ez-bus/dbcon"
-)
+import "github.com/carlqt/ez-bus/env"
 
 type Route struct {
 	ServiceNo    string
@@ -12,5 +10,5 @@ type Route struct {
 
 func (r *Route) Create() {
 	q := "INSERT INTO routes (bus_stop_code, bus_id_code, stop_sequence) VALUES ($1, $2, $3)"
-	dbcon.DBX.MustExec(q, r.BusStopCode, r.ServiceNo, r.StopSequence)
+	env.DBX.MustExec(q, r.BusStopCode, r.ServiceNo, r.StopSequence)
 }

@@ -47,3 +47,14 @@ func Station(w http.ResponseWriter, r *http.Request) {
 
 	render.JSON(w, station)
 }
+
+func stationBusArrival(w http.ResponseWriter, r *http.Request) {
+	q := chi.URLParam(r, "busStopCode")
+	h := make(map[string]interface{})
+	station := &models.Station{BusStopCode: q}
+	err := station.GetStationBuses()
+
+	h["Buses"] = station.Buses
+	h["errors"] = err
+	render.JSON(w, h)
+}

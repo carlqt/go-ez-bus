@@ -3,9 +3,11 @@ package httpdebug
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"net/http"
+	"net/http/httputil"
 	"os"
 )
 
@@ -23,4 +25,13 @@ func PrettyJson(reader io.ReadCloser) {
 
 	json.Indent(&out, input, "", "  ")
 	out.WriteTo(os.Stdout)
+}
+
+func PrettyResponse(resp *http.Response) {
+
+	responseDump, err := httputil.DumpResponse(resp, true)
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println(string(responseDump))
 }

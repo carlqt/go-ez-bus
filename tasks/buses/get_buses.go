@@ -10,7 +10,7 @@ import (
 	_ "github.com/lib/pq"
 
 	"github.com/carlqt/ez-bus/config"
-	"github.com/carlqt/ez-bus/dbcon"
+	"github.com/carlqt/ez-bus/env"
 	"github.com/carlqt/ez-bus/models"
 )
 
@@ -28,7 +28,7 @@ func (b *BusResponse) CreateAll() {
 
 func BusExists(busIDCode string) bool {
 	var exists bool
-	dbcon.DBX.QueryRowx("SELECT exists (SELECT 1 FROM buses WHERE bus_id_code = $1)", busIDCode).Scan(&exists)
+	env.DBX.QueryRowx("SELECT exists (SELECT 1 FROM buses WHERE bus_id_code = $1)", busIDCode).Scan(&exists)
 
 	switch {
 	case exists:
@@ -40,7 +40,7 @@ func BusExists(busIDCode string) bool {
 
 func init() {
 	var err error
-	dbcon.DBX, err = sqlx.Connect("postgres", "dbname=sg_buses sslmode=disable")
+	env.DBX, err = sqlx.Connect("postgres", "dbname=sg_buses sslmode=disable")
 	if err != nil {
 		panic(err)
 	}
