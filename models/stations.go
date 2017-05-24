@@ -39,7 +39,7 @@ func Nearby(radius int, c Location) (Stations, error) {
 		return nil, err
 	}
 
-	stations.initBuses()
+	// stations.initBuses()
 	return stations, nil
 }
 
