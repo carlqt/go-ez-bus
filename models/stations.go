@@ -82,18 +82,19 @@ func (s *Station) GetStationBuses() error {
 		bus.Status = service.Status
 		bus.NextBus = service.NextBus
 		bus.SubsequentBus = service.SubsequentBus
-		appendUniqueBus(&s.Buses, bus)
+		s.Buses = appendUniqueBus(s.Buses, bus)
+		// appendUniqueBus(&s.Buses, bus)
 	}
 
 	return nil
 }
 
-func appendUniqueBus(dst *[]Bus, item Bus) {
-	for _, bus := range *dst {
+func appendUniqueBus(dst []Bus, item Bus) []Bus {
+	for _, bus := range dst {
 		if bus.BusIDCode == item.BusIDCode {
-			return
+			return dst
 		}
 	}
 
-	*dst = append(*dst, item)
+	return append(dst, item)
 }
