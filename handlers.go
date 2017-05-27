@@ -23,10 +23,6 @@ func BusStopAuth(next http.HandlerFunc) http.HandlerFunc {
 	})
 }
 
-func Index(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Hello, World"))
-}
-
 func NearbyStations(w http.ResponseWriter, r *http.Request) {
 	h := make(map[string]interface{})
 	coors := make(map[string]float64)

@@ -3,6 +3,8 @@ package main
 import (
 	"log"
 	"net/http"
+	"os"
+	"path/filepath"
 
 	"github.com/carlqt/ez-bus/config"
 	"github.com/carlqt/ez-bus/env"
@@ -29,15 +31,23 @@ func init() {
 
 func main() {
 	r := chi.NewRouter()
-
 	r.Use(middleware.RequestID)
 	r.Use(middleware.Logger)
-	r.Use(ApplicationHandler)
-	r.Get("/", Index)
-	r.Get("/nearby", NearbyStations)
-	r.Get("/station/:busStopCode", BusStopAuth(Station))
-	r.Get("/station/:busStopCode/arrivals", stationBusArrival)
-	r.Get("/stations", stations)
+
+	workDir, _ := os.Getwd()
+	filesDir := filepath.Join(workDir, "build")
+	assetsDir := filepath.Join(workDir, "build", "static")
+	r.FileServer("/", http.Dir(filesDir))
+	r.FileServer("/static", http.Dir(assetsDir))
+
+	r.Route("/api", func(r chi.Router) {
+		r.Use(ApplicationHandler)
+		r.Get("/nearby", NearbyStations)
+		r.Get("/station/:busStopCode", BusStopAuth(Station))
+		r.Get("/station/:busStopCode/arrivals", stationBusArrival)
+		r.Get("/stations", stations)
+	})
+
 	log.Println("listening to port 8000")
 	log.Fatal(http.ListenAndServe(":8000", r))
 }
