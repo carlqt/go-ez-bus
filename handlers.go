@@ -48,6 +48,15 @@ func Station(w http.ResponseWriter, r *http.Request) {
 	render.JSON(w, station)
 }
 
+func stations(w http.ResponseWriter, r *http.Request) {
+	h := make(map[string]interface{})
+	stations, err := models.AllStations()
+
+	h["stations"] = stations
+	h["errors"] = err
+	render.JSON(w, h)
+}
+
 func stationBusArrival(w http.ResponseWriter, r *http.Request) {
 	q := chi.URLParam(r, "busStopCode")
 	h := make(map[string]interface{})

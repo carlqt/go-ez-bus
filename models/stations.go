@@ -24,6 +24,16 @@ func NewStation(code string) *Station {
 	return station
 }
 
+func AllStations() (Stations, error) {
+	var stations Stations
+	err := env.DBX.Select(&stations, "SELECT description, bus_stop_code FROM stations")
+	if err != nil {
+		return nil, err
+	}
+
+	return stations, nil
+}
+
 func (s *Station) Create() {
 	q := `INSERT INTO stations (bus_stop_code, road_name, description, latitude, longitude)
 	VALUES ($1, $2, $3, $4, $5)`
@@ -39,7 +49,6 @@ func Nearby(radius int, c Location) (Stations, error) {
 		return nil, err
 	}
 
-	// stations.initBuses()
 	return stations, nil
 }
 
@@ -83,7 +92,6 @@ func (s *Station) GetStationBuses() error {
 		bus.NextBus = service.NextBus
 		bus.SubsequentBus = service.SubsequentBus
 		s.Buses = appendUniqueBus(s.Buses, bus)
-		// appendUniqueBus(&s.Buses, bus)
 	}
 
 	return nil
