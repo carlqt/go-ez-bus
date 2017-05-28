@@ -9,12 +9,17 @@ import (
 	"github.com/pressly/chi"
 )
 
-func ApplicationHandler(next http.Handler) http.Handler {
+func ApiHandler(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.Header().Set("Access-Control-Allow-Origin", "http://localhost:8080")
 		next.ServeHTTP(w, r)
 	})
+}
+
+func NotFoundHandler(w http.ResponseWriter, r *http.Request) {
+	// http.Redirect(w, r, "/", 301)
+	http.ServeFile(w, r, "./build/index.html")
 }
 
 func BusStopAuth(next http.HandlerFunc) http.HandlerFunc {

@@ -31,6 +31,7 @@ func init() {
 
 func main() {
 	r := chi.NewRouter()
+
 	r.Use(middleware.RequestID)
 	r.Use(middleware.Logger)
 
@@ -39,9 +40,10 @@ func main() {
 	assetsDir := filepath.Join(workDir, "build", "static")
 	r.FileServer("/", http.Dir(filesDir))
 	r.FileServer("/static", http.Dir(assetsDir))
+	r.Get("/stations", NotFoundHandler)
 
 	r.Route("/api", func(r chi.Router) {
-		r.Use(ApplicationHandler)
+		r.Use(ApiHandler)
 		r.Get("/nearby", NearbyStations)
 		r.Get("/station/:busStopCode", BusStopAuth(Station))
 		r.Get("/station/:busStopCode/arrivals", stationBusArrival)
