@@ -1,0 +1,8 @@
+package: github.com/carlqt/ez-bus
+import:
+- package: github.com/Masterminds/squirrel
+- package: github.com/jmoiron/sqlx
+- package: github.com/lib/pq
+- package: github.com/pressly/chi
+  subpackages:
+  - middleware
