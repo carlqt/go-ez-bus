@@ -36,12 +36,9 @@ func main() {
 	r.Use(middleware.Logger)
 
 	workDir, _ := os.Getwd()
-	//filesDir := filepath.Join(workDir, "build")
-	assetsDir := filepath.Join(workDir, "static")
-	//r.FileServer("/", http.Dir(filesDir))
-	r.FileServer("/static", http.Dir(assetsDir))
-	r.Get("/", NotFoundHandler)
-	r.Get("/stations", NotFoundHandler)
+	filesDir := filepath.Join(workDir, "build")
+	r.FileServer("/", http.Dir(filesDir))
+	r.Get("/stations", serveIndex)
 
 	r.Route("/api", func(r chi.Router) {
 		r.Use(ApiHandler)

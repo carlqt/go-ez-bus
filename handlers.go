@@ -17,9 +17,8 @@ func ApiHandler(next http.Handler) http.Handler {
 	})
 }
 
-func NotFoundHandler(w http.ResponseWriter, r *http.Request) {
-	// http.Redirect(w, r, "/", 301)
-	http.ServeFile(w, r, "./index.html")
+func serveIndex(w http.ResponseWriter, r *http.Request) {
+	http.ServeFile(w, r, "./build/index.html")
 }
 
 func BusStopAuth(next http.HandlerFunc) http.HandlerFunc {
