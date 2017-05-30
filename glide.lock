@@ -1,0 +1,22 @@
+hash: 9702055a570d1d2b873c07ec3c31dc549e45764d038c83ccdfc84dba2038e182
+updated: 2017-05-28T18:48:41.621898257+08:00
+imports:
+- name: github.com/jmoiron/sqlx
+  version: d9bd385d68c068f1fabb5057e3dedcbcbb039d0f
+  subpackages:
+  - reflectx
+- name: github.com/lann/builder
+  version: f22ce00fd9394014049dad11c244859432bd6820
+- name: github.com/lann/ps
+  version: 62de8c46ede02a7675c4c79c84883eb164cb71e3
+- name: github.com/lib/pq
+  version: 2704adc878c21e1329f46f6e56a1c387d788ff94
+  subpackages:
+  - oid
+- name: github.com/Masterminds/squirrel
+  version: 20f192218cf52a73397fa2df45bdda720f3e47c8
+- name: github.com/pressly/chi
+  version: e6033ea75479391a4bce3918fc119cad31e1cb30
+  subpackages:
+  - middleware
+testImports: []
