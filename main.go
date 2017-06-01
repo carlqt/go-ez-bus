@@ -17,7 +17,7 @@ import (
 func init() {
 	var err error
 
-	env.DBX, err = sqlx.Connect("postgres", "dbname=sg_buses sslmode=disable")
+	env.DBX, err = sqlx.Connect("postgres", "dbname=sg_buses sslmode=disable user=carlqt password=password")
 	if err != nil {
 		panic(err)
 	}
