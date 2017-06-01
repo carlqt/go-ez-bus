@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -16,13 +17,14 @@ import (
 
 func init() {
 	var err error
+	env.Conf = config.NewConfig()
 
-	env.DBX, err = sqlx.Connect("postgres", "dbname=sg_buses sslmode=disable user=carlqt password=password")
+	db := env.Conf.Database
+	connStr := fmt.Sprintf("dbname=%s sslmode=%s user=%s password=%s", db.DBname, db.SSLMode, db.Username, db.Password)
+	env.DBX, err = sqlx.Connect(db.Adapter, connStr)
 	if err != nil {
 		panic(err)
 	}
-
-	env.Conf = config.NewConfig()
 
 	// Use this client on http requests to take advantage of keep-alive connections
 	tr := new(http.Transport)

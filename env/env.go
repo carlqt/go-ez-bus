@@ -12,6 +12,6 @@ var (
 	//DBX is the connection handler for sqlx
 	DBX        *sqlx.DB
 	SDBcon     *squirrel.StatementBuilderType
-	Conf       *config.Config
+	Conf       config.Config
 	HttpClient *http.Client
 )

@@ -8,14 +8,23 @@ import (
 )
 
 type Config struct {
-	BusKey     string
-	BaseURL    string
-	LTAUserKey string
+	Database   Database `json:"database"`
+	BusKey     string   `json:"busKey"`
+	BaseURL    string   `json:"baseURL"`
+	LTAUserKey string   `json:"ltaUserKey"`
+}
+
+type Database struct {
+	Adapter  string
+	DBname   string
+	SSLMode  string
+	Username string
+	Password string
 }
 
 // NewConfig returns a struct with values based on config.json file
-func NewConfig() *Config {
-	c := new(Config)
+func NewConfig() Config {
+	c := Config{}
 
 	workDir, _ := os.Getwd()
 	configPath := filepath.Join(workDir, "config", "config.json")
@@ -25,7 +34,7 @@ func NewConfig() *Config {
 		panic(err)
 	}
 
-	err = json.Unmarshal(data, c)
+	err = json.Unmarshal(data, &c)
 	if err != nil {
 		panic(err)
 	}
